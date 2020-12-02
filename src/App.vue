@@ -2,18 +2,23 @@
   <div id="app">
     <main class="main-wrap warm">
       <div class="search">
-        <input type="text" class="search__input" placeholder="Введите место">
+        <input 
+          type="text" 
+          class="search__input" 
+          placeholder="Введите место"
+          v-model="query"
+          @keypress="fetchWeather"
+        >
       </div>
 
-      <div class="weather">
+      <div class="weather" v-if="typeof weather.main != 'undefined'">
         <div class="location">
-          <div class="location__name">Moscow, Russia</div>
-          <div class="location__date">01.01.2021</div>
+          <div class="location__name">{{ weather.name }}</div>
         </div>
 
         <div class="data">
-          <div class="data__temperature">0</div>
-          <div class="data__weather-type">Snow</div>
+          <div class="data__temperature">{{ Math.round(weather.main.temp) }}</div>
+          <div class="data__weather-type">{{ weather.weather[0].main }}</div>
         </div>
       </div>
     </main>
@@ -25,7 +30,24 @@ export default {
   name: 'App',
   data() {
     return {
-      api_key: 'd92217d7025b863a72e966fbdad7cd64'
+      url: 'https://api.openweathermap.org/data/2.5/',
+      api_key: 'd92217d7025b863a72e966fbdad7cd64',
+      query: '',
+      weather: {}
+    }
+  },
+  methods: {
+    fetchWeather(e) {
+      if (e.key == 'Enter') {
+        fetch(`${this.url}weather?q=${this.query}&units=metric&appid=${this.api_key}&lang=RU`)
+          .then(res => {
+            return res.json();
+          }).then(this.setResults);
+      }
+    },
+    setResults(results) {
+      this.weather = results;
+      console.log(this.weather);
     }
   }
 }
